@@ -11,37 +11,34 @@ function sendContactEmail($name, $email, $phone, $company, $subject, $message)
 
     try {
 
-        // SMTP Settings
         $mail->isSMTP();
 
-        $mail->Host       = 'smtp.gmail.com';
-        $mail->SMTPAuth   = true;
+        $mail->Host = 'smtp.gmail.com';
+        $mail->SMTPAuth = true;
 
-        // YOUR EMAIL
-        $mail->Username   = 'rohityada5577@gmail.com';
-
-        // GMAIL APP PASSWORD
-        $mail->Password   = 'mulchand@123';
+        $mail->Username = getenv('MAIL_USERNAME');
+        $mail->Password = getenv('MAIL_PASSWORD');
 
         $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-        $mail->Port       = 587;
+        $mail->Port = 587;
 
-        // Sender
+        // IMPORTANT:
+        // Sender must be the same Gmail account used for SMTP authentication.
         $mail->setFrom(
-            'rohit5577#gmail.com',
+            getenv('MAIL_USERNAME'),
             'Laboratory Website'
         );
 
-        // Receiver
         $mail->addAddress(
-            'rohit5577@gmail.com',
+            getenv('MAIL_TO'),
             'Admin'
         );
 
-        // Reply to customer
-        $mail->addReplyTo($email, $name);
+        $mail->addReplyTo(
+            $email,
+            $name
+        );
 
-        // Email content
         $mail->isHTML(true);
 
         $mail->Subject = 'New Laboratory Website Enquiry';
@@ -55,7 +52,6 @@ function sendContactEmail($name, $email, $phone, $company, $subject, $message)
                 background:#ffffff;
                 border-radius:12px;
                 overflow:hidden;
-                box-shadow:0 5px 25px rgba(0,0,0,.08);
             ">
 
                 <div style="
@@ -74,69 +70,35 @@ function sendContactEmail($name, $email, $phone, $company, $subject, $message)
                         You have received a new enquiry from your website.
                     </p>
 
-                    <table style="width:100%;border-collapse:collapse">
+                    <p>
+                        <strong>Name:</strong>
+                        ' . htmlspecialchars($name) . '
+                    </p>
 
-                        <tr>
-                            <td style="padding:12px;border-bottom:1px solid #eee">
-                                <strong>Name</strong>
-                            </td>
+                    <p>
+                        <strong>Email:</strong>
+                        ' . htmlspecialchars($email) . '
+                    </p>
 
-                            <td style="padding:12px;border-bottom:1px solid #eee">
-                                ' . htmlspecialchars($name) . '
-                            </td>
-                        </tr>
+                    <p>
+                        <strong>Phone:</strong>
+                        ' . htmlspecialchars($phone) . '
+                    </p>
 
-                        <tr>
-                            <td style="padding:12px;border-bottom:1px solid #eee">
-                                <strong>Email</strong>
-                            </td>
+                    <p>
+                        <strong>Company:</strong>
+                        ' . htmlspecialchars($company) . '
+                    </p>
 
-                            <td style="padding:12px;border-bottom:1px solid #eee">
-                                ' . htmlspecialchars($email) . '
-                            </td>
-                        </tr>
+                    <p>
+                        <strong>Subject:</strong>
+                        ' . htmlspecialchars($subject) . '
+                    </p>
 
-                        <tr>
-                            <td style="padding:12px;border-bottom:1px solid #eee">
-                                <strong>Phone</strong>
-                            </td>
-
-                            <td style="padding:12px;border-bottom:1px solid #eee">
-                                ' . htmlspecialchars($phone) . '
-                            </td>
-                        </tr>
-
-                        <tr>
-                            <td style="padding:12px;border-bottom:1px solid #eee">
-                                <strong>Company</strong>
-                            </td>
-
-                            <td style="padding:12px;border-bottom:1px solid #eee">
-                                ' . htmlspecialchars($company) . '
-                            </td>
-                        </tr>
-
-                        <tr>
-                            <td style="padding:12px;border-bottom:1px solid #eee">
-                                <strong>Subject</strong>
-                            </td>
-
-                            <td style="padding:12px;border-bottom:1px solid #eee">
-                                ' . htmlspecialchars($subject) . '
-                            </td>
-                        </tr>
-
-                        <tr>
-                            <td style="padding:12px;vertical-align:top">
-                                <strong>Message</strong>
-                            </td>
-
-                            <td style="padding:12px">
-                                ' . nl2br(htmlspecialchars($message)) . '
-                            </td>
-                        </tr>
-
-                    </table>
+                    <p>
+                        <strong>Message:</strong><br>
+                        ' . nl2br(htmlspecialchars($message)) . '
+                    </p>
 
                 </div>
 
@@ -159,6 +121,8 @@ function sendContactEmail($name, $email, $phone, $company, $subject, $message)
         return true;
 
     } catch (Exception $e) {
+
+        error_log('PHPMailer Error: ' . $mail->ErrorInfo);
 
         return false;
     }
